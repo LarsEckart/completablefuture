@@ -16,66 +16,67 @@ import java.util.function.Consumer;
 
 public class S10_AsyncHttp extends AbstractFuturesTest {
 
-	private static final Logger log = LoggerFactory.getLogger(S10_AsyncHttp.class);
+    private static final Logger log = LoggerFactory.getLogger(S10_AsyncHttp.class);
 
-	private static final AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
+    private static final AsyncHttpClient asyncHttpClient = new AsyncHttpClient();
 
-	@AfterClass
-	public static void closeClient() {
-		asyncHttpClient.close();
-	}
+    @AfterClass
+    public static void closeClient() {
+        asyncHttpClient.close();
+    }
 
-	@Test
-	public void asyncHttpWithCallbacks() throws Exception {
-		loadTag(
-				"java",
-				response -> log.debug("Got: {}", response),
-				throwable -> log.error("Mayday!", throwable)
-		);
-		TimeUnit.SECONDS.sleep(5);
-	}
+    @Test
+    public void asyncHttpWithCallbacks() throws Exception {
+        loadTag(
+            "java",
+            response -> log.debug("Got: {}", response),
+            throwable -> log.error("Mayday!", throwable)
+        );
+        TimeUnit.SECONDS.sleep(5);
+    }
 
-	public void loadTag(
-			String tag,
-			Consumer<String> onSuccess,
-			Consumer<Throwable> onError) throws IOException {
-		asyncHttpClient
-				.prepareGet("http://stackoverflow.com/questions/tagged/" + tag)
-				.execute(
-						new AsyncCompletionHandler<Void>() {
+    public void loadTag(
+        String tag,
+        Consumer<String> onSuccess,
+        Consumer<Throwable> onError) throws IOException
+    {
+        asyncHttpClient
+            .prepareGet("http://stackoverflow.com/questions/tagged/" + tag)
+            .execute(
+                new AsyncCompletionHandler<Void>() {
 
-							@Override
-							public Void onCompleted(Response response) throws Exception {
-								onSuccess.accept(response.getResponseBody());
-								return null;
-							}
+                    @Override
+                    public Void onCompleted(Response response) throws Exception {
+                        onSuccess.accept(response.getResponseBody());
+                        return null;
+                    }
 
-							@Override
-							public void onThrowable(Throwable t) {
-								onError.accept(t);
-							}
-						}
-				);
-	}
+                    @Override
+                    public void onThrowable(Throwable t) {
+                        onError.accept(t);
+                    }
+                }
+            );
+    }
 
-	public CompletableFuture<String> loadTag(String tag) throws IOException {
-		final CompletableFuture<String> promise = new CompletableFuture<>();
-		asyncHttpClient.prepareGet("http://stackoverflow.com/questions/tagged/" + tag).execute(
-				new AsyncCompletionHandler<Void>() {
+    public CompletableFuture<String> loadTag(String tag) throws IOException {
+        final CompletableFuture<String> promise = new CompletableFuture<>();
+        asyncHttpClient.prepareGet("http://stackoverflow.com/questions/tagged/" + tag).execute(
+            new AsyncCompletionHandler<Void>() {
 
-					@Override
-					public Void onCompleted(Response response) throws Exception {
-						promise.complete(response.getResponseBody());
-						return null;
-					}
+                @Override
+                public Void onCompleted(Response response) throws Exception {
+                    promise.complete(response.getResponseBody());
+                    return null;
+                }
 
-					@Override
-					public void onThrowable(Throwable t) {
-						promise.completeExceptionally(t);
-					}
-				}
-		);
-		return promise;
-	}
+                @Override
+                public void onThrowable(Throwable t) {
+                    promise.completeExceptionally(t);
+                }
+            }
+        );
+        return promise;
+    }
 }
 

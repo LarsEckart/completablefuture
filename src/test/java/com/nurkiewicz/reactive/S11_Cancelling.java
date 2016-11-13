@@ -7,49 +7,53 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeoutException;
 
 public class S11_Cancelling extends AbstractFuturesTest {
 
-	private static ExecutorService myThreadPool;
+    private static ExecutorService myThreadPool;
 
-	@BeforeClass
-	public static void init() {
-		myThreadPool = Executors.newFixedThreadPool(10);
-	}
+    @BeforeClass
+    public static void init() {
+        myThreadPool = Executors.newFixedThreadPool(10);
+    }
 
-	@AfterClass
-	public static void close() {
-		myThreadPool.shutdownNow();
-	}
+    @AfterClass
+    public static void close() {
+        myThreadPool.shutdownNow();
+    }
 
-	@Test
-	public void shouldCancelFuture() throws InterruptedException, TimeoutException {
-		//given
-		InterruptibleTask task = new InterruptibleTask();
-		Future future = myThreadPool.submit(task);
-		task.blockUntilStarted();
+    @Test
+    public void shouldCancelFuture() throws InterruptedException, TimeoutException {
+        //given
+        InterruptibleTask task = new InterruptibleTask();
+        Future future = myThreadPool.submit(task);
+        task.blockUntilStarted();
 
-		//when
-		future.cancel(true);
+        //when
+        future.cancel(true);
 
-		//then
-		task.blockUntilInterrupted();
-	}
+        //then
+        task.blockUntilInterrupted();
+    }
 
-	@Ignore("Fails with CompletableFuture")
-	@Test
-	public void shouldCancelCompletableFuture() throws InterruptedException, TimeoutException {
-		//given
-		InterruptibleTask task = new InterruptibleTask();
-		CompletableFuture<Void> future = CompletableFuture.supplyAsync(task, myThreadPool);
-		task.blockUntilStarted();
+    @Ignore("Fails with CompletableFuture")
+    @Test
+    public void shouldCancelCompletableFuture() throws InterruptedException, TimeoutException {
+        //given
+        InterruptibleTask task = new InterruptibleTask();
+        CompletableFuture<Void> future = CompletableFuture.supplyAsync(task, myThreadPool);
+        task.blockUntilStarted();
 
-		//when
-		future.cancel(true);
+        //when
+        future.cancel(true);
 
-		//then
-		task.blockUntilInterrupted();
-	}
+        //then
+        task.blockUntilInterrupted();
+    }
 }
 

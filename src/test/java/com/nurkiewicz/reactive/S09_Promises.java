@@ -14,28 +14,29 @@ import java.util.concurrent.TimeoutException;
 
 public class S09_Promises extends AbstractFuturesTest {
 
-	private static final Logger log = LoggerFactory.getLogger(S09_Promises.class);
+    private static final Logger log = LoggerFactory.getLogger(S09_Promises.class);
 
-	private static final ScheduledExecutorService pool =
-			Executors.newScheduledThreadPool(10,
-					new ThreadFactoryBuilder()
-							.setDaemon(true)
-							.setNameFormat("FutureOps-%d")
-							.build()
-			);
+    private static final ScheduledExecutorService pool =
+        Executors.newScheduledThreadPool(10,
+                                         new ThreadFactoryBuilder()
+                                             .setDaemon(true)
+                                             .setNameFormat("FutureOps-%d")
+                                             .build()
+        );
 
-	public static <T> CompletableFuture<T> never() {
-		return new CompletableFuture<>();
-	}
+    public static <T> CompletableFuture<T> never() {
+        return new CompletableFuture<>();
+    }
 
-	public static <T> CompletableFuture<T> timeoutAfter(
-			Duration duration) {
-		final CompletableFuture<T> promise = new CompletableFuture<>();
-		pool.schedule(
-				() -> promise.completeExceptionally(new TimeoutException()),
-				duration.toMillis(), TimeUnit.MILLISECONDS);
-		return promise;
-	}
+    public static <T> CompletableFuture<T> timeoutAfter(
+        Duration duration)
+    {
+        final CompletableFuture<T> promise = new CompletableFuture<>();
+        pool.schedule(
+            () -> promise.completeExceptionally(new TimeoutException()),
+            duration.toMillis(), TimeUnit.MILLISECONDS);
+        return promise;
+    }
 
 }
 
